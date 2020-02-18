@@ -4,8 +4,6 @@ This application was made with django restframework, postgresql, nginx, react, d
 
 ## Run Project
 
-### Development
-
 ```sh
 docker-compose up -d --build
 ```
@@ -20,7 +18,7 @@ Go to http://localhost/api/records/ to create records or to list all the records
 
 Or to http://localhost/api/records/:id to get, update or delete a specific record
 
-### Testing
+## Testing
 
 ```sh
 docker-compose up -d --build
