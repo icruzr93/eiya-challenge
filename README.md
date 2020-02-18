@@ -1,4 +1,4 @@
-# Fibonnaci Calculator
+# Fibonacci Calculator
 
 This application was made with django restframework, postgresql, nginx, react, docker and docker compose.
 
