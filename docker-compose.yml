@@ -1,0 +1,65 @@
+version: "3.7"
+
+services:
+  db:
+    build:
+      context: ./services/db
+      dockerfile: Dockerfile
+    expose:
+      - 5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  dbredis:
+    image: "redis:alpine"
+
+  api:
+    restart: always
+    entrypoint: /usr/src/app/entrypoint.sh
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile
+    volumes:
+      - "./services/api/:/usr/src/app/"
+    env_file: ./services/api/.env
+    expose:
+      - 8000
+    depends_on:
+      - db
+      - dbredis
+
+  client:
+    build:
+      context: ./services/client
+      dockerfile: Dockerfile
+    volumes:
+      - /usr/src/app/node_modules
+      - ./services/client:/usr/src/app/
+    environment:
+      - NODE_ENV=development
+      - REACT_APP_API_URL=http://localhost/api
+
+  worker:
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile
+    restart: "no"
+    volumes:
+      - "./services/api/:/usr/src/app/"
+    command: celery -A api worker -l info
+    env_file: ./services/api/.env
+    depends_on:
+      - db
+      - dbredis
+
+  nginx:
+    build:
+      context: ./services/nginx
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - 80:80
+    depends_on:
+      - api
+      - client
